@@ -7,6 +7,9 @@
 package co.paralleluniverse.vtime.clock;
 
 import java.lang.management.RuntimeMXBean;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import co.paralleluniverse.vtime.Clock;
 
 /**
@@ -51,6 +54,16 @@ public final class ScaledClock implements Clock {
     @Override
     public String toString() {
         return "ScaledClock{source=" + source + " scale=" + scale + '}';
+    }
+
+    @Override
+    public java.time.Clock Clock_systemUTC() {
+        return new JavaTimeScaledClock(ZoneOffset.UTC);
+    }
+
+    @Override
+    public java.time.Clock Clock_systemDefaultZone() {
+        return new JavaTimeScaledClock(ZoneId.systemDefault());
     }
 
     @Override
@@ -106,5 +119,32 @@ public final class ScaledClock implements Clock {
     @Override
     public void afterGlobalClockSetup() {
         source.afterGlobalClockSetup();
+    }
+
+    private class JavaTimeScaledClock extends java.time.Clock {
+        private final ZoneId zone;
+
+        public JavaTimeScaledClock(ZoneId zone) {
+            this.zone = zone;
+        }
+
+        @Override
+        public ZoneId getZone() {
+            return zone;
+        }
+
+        @Override
+        public java.time.Clock withZone(ZoneId zone) {
+            return new JavaTimeScaledClock(zone);
+        }
+
+        public long millis() {
+            return System_currentTimeMillis();
+        }
+
+        @Override
+        public Instant instant() {
+            return Instant.ofEpochMilli(System_currentTimeMillis());
+        }
     }
 }

@@ -7,11 +7,20 @@
 package co.paralleluniverse.vtime.boot;
 
 import java.lang.management.RuntimeMXBean;
+import java.time.Clock;
 import co.paralleluniverse.vtime.VirtualClock;
 
 @SuppressWarnings({"WeakerAccess", "unused"})
 public final class ClockProxy {
     private ClockProxy() {
+    }
+
+    public static Clock Clock_systemUTC() {
+        return VirtualClock.get().Clock_systemUTC();
+    }
+
+    public static Clock Clock_systemDefaultZone() {
+        return VirtualClock.get().Clock_systemDefaultZone();
     }
 
     public static long System_currentTimeMillis() {

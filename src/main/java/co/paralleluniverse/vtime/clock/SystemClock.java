@@ -31,6 +31,16 @@ public final class SystemClock implements Clock {
     }
 
     @Override
+    public java.time.Clock Clock_systemUTC() {
+        return java.time.Clock.systemUTC();
+    }
+
+    @Override
+    public java.time.Clock Clock_systemDefaultZone() {
+        return java.time.Clock.systemDefaultZone();
+    }
+
+    @Override
     public long System_currentTimeMillis() {
         return System.currentTimeMillis();
     }

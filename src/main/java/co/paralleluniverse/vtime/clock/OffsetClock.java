@@ -4,6 +4,9 @@ import java.io.*;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.*;
 import co.paralleluniverse.vtime.Clock;
 import co.paralleluniverse.vtime.Logger;
@@ -61,7 +64,7 @@ public final class OffsetClock implements Clock {
      *
      * @param source the source {@link Clock clock} from which to apply the offset
      * @param offset the offset duration in number of milliseconds
-     * @param state the {@link State} if any or {@code null}
+     * @param state  the {@link State} if any or {@code null}
      */
     public OffsetClock(Clock source, long offset, State state) {
         this.source = source;
@@ -72,6 +75,16 @@ public final class OffsetClock implements Clock {
     @Override
     public String toString() {
         return "OffsetClock{source=" + source + " offset=" + offset + '}';
+    }
+
+    @Override
+    public java.time.Clock Clock_systemUTC() {
+        return new JavaTimeOffsetClock(ZoneOffset.UTC);
+    }
+
+    @Override
+    public java.time.Clock Clock_systemDefaultZone() {
+        return new JavaTimeOffsetClock(ZoneId.systemDefault());
     }
 
     @Override
@@ -158,6 +171,34 @@ public final class OffsetClock implements Clock {
             } catch (IOException e) {
                 Logger.warning("Unable to save offset clock state in file '%s' :", e, file.getAbsolutePath());
             }
+        }
+    }
+
+    private class JavaTimeOffsetClock extends java.time.Clock {
+        private final ZoneId zone;
+
+        public JavaTimeOffsetClock(ZoneId zone) {
+            this.zone = zone;
+        }
+
+        @Override
+        public ZoneId getZone() {
+            return zone;
+        }
+
+        @Override
+        public java.time.Clock withZone(ZoneId zone) {
+            return new JavaTimeOffsetClock(zone);
+        }
+
+        @Override
+        public long millis() {
+            return System_currentTimeMillis();
+        }
+
+        @Override
+        public Instant instant() {
+            return Instant.ofEpochMilli(System_currentTimeMillis());
         }
     }
 }

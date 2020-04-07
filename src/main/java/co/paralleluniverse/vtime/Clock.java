@@ -18,6 +18,10 @@ import java.lang.management.RuntimeMXBean;
  * @author pron
  */
 public interface Clock {
+    java.time.Clock Clock_systemUTC();
+
+    java.time.Clock Clock_systemDefaultZone();
+
     long System_currentTimeMillis();
 
     long System_nanoTime();

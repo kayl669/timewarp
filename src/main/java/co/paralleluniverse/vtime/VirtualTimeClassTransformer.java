@@ -85,6 +85,14 @@ class VirtualTimeClassTransformer implements ClassFileTransformer {
                                         return callClockMethod("System_currentTimeMillis", desc);
                                 }
                                 break;
+                            case "java/time/Clock":
+                                switch (name) {
+                                    case "systemUTC":
+                                        return callClockMethod("Clock_systemUTC", desc);
+                                    case "systemDefaultZone":
+                                        return callClockMethod("Clock_systemDefaultZone", desc);
+                                }
+                                break;
                             case "java/lang/Thread":
                                 if ("sleep".equals(name)) {
                                     return callClockMethod("Thread_sleep", desc);

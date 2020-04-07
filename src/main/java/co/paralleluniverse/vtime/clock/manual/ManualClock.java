@@ -7,6 +7,9 @@
 package co.paralleluniverse.vtime.clock.manual;
 
 import java.lang.management.RuntimeMXBean;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.*;
@@ -77,6 +80,16 @@ public final class ManualClock implements Clock {
             // new ones won't be added because we've already advanced nanos
             waiters.poll().wakeup();
         }
+    }
+
+    @Override
+    public java.time.Clock Clock_systemUTC() {
+        return new JavaTimeManualClock(ZoneOffset.UTC);
+    }
+
+    @Override
+    public java.time.Clock Clock_systemDefaultZone() {
+        return new JavaTimeManualClock(ZoneId.systemDefault());
     }
 
     @Override
@@ -219,6 +232,34 @@ public final class ManualClock implements Clock {
             if (!disabled) {
                 thread.interrupt();
             }
+        }
+    }
+
+    private class JavaTimeManualClock extends java.time.Clock {
+        private final ZoneId zone;
+
+        public JavaTimeManualClock(ZoneId zone) {
+            this.zone = zone;
+        }
+
+        @Override
+        public ZoneId getZone() {
+            return zone;
+        }
+
+        @Override
+        public java.time.Clock withZone(ZoneId zone) {
+            return new JavaTimeManualClock(zone);
+        }
+
+        @Override
+        public long millis() {
+            return System_currentTimeMillis();
+        }
+
+        @Override
+        public Instant instant() {
+            return Instant.ofEpochMilli(System_currentTimeMillis());
         }
     }
 }
